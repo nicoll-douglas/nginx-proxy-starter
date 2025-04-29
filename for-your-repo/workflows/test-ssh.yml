@@ -1,0 +1,28 @@
+name: Test SSH
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-ssh:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup SSH
+        run: |
+          echo "Setting up SSH connection to port ${{ vars.SSH_PORT }}"
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+
+          echo "Adding host key for ${{ vars.SSH_HOST }}:${{ vars.SSH_PORT }}"
+          ssh-keyscan -p ${{ vars.SSH_PORT }} -H ${{ vars.SSH_HOST }} >> ~/.ssh/known_hosts
+
+          eval "$(ssh-agent -s)"
+          ssh-add ~/.ssh/id_ed25519
+
+          echo "SSH setup complete"
+
+      - name: Test SSH connection
+        run: |
+          ssh -p ${{ vars.SSH_PORT }} ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }} "echo 'GitHub Actions SSH is working for the ci-user.'"
