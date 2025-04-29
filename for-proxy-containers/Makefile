@@ -3,7 +3,7 @@ DC_PROXY = docker compose --env-file .env.proxy -f docker-compose.proxy.yml
 
 # Create the network
 proxy-create-network:
-	docker network create nginx-proxy
+	docker network create nginx-proxy-network
 
 # Start the proxy
 proxy-up:
