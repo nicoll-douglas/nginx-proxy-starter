@@ -67,7 +67,7 @@ cd nginx-proxy-starter/site
 Copy the files to your project directory:
 
 ```bash
-cp * /path/to/your/project
+cp ./* ./.* /path/to/your/project
 ```
 
 Next, configure `.env.production` and the Docker files as necessary for your project. See the next section for more details on environment configuration.
