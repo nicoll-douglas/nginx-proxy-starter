@@ -22,7 +22,7 @@ deploy-build:
 
 # Push application images to Docker Hub
 deploy-push:
-	set -a; . .env; set +a; docker push $$DOCKERHUB_IMAGE
+	set -a; . .env.production; set +a; docker push $$DOCKERHUB_IMAGE
 
 help:
 	@echo "Available targets:"
