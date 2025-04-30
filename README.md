@@ -141,7 +141,7 @@ Your site should now be deployed with SSL enabled ✅.
 - `APP_CONTAINER_NAME`: Container name for your application
 - `DOCKERHUB_IMAGE`: Docker Hub image (e.g., username/repo:tag)
 - `VIRTUAL_HOST`: Domain name for your site
-- `LETSENCRYPT_HOST`: Domain for SSL certificate (usually same as VIRTUAL_HOST)
+- `LETSENCRYPT_HOST`: Domain for SSL certificate (usually same as `VIRTUAL_HOST`)
 - `LETSENCRYPT_EMAIL`: Site-specific email for Let's Encrypt notifications
 
 ## Available Commands
