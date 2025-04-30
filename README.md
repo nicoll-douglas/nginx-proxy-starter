@@ -1,6 +1,6 @@
 # Nginx + Docker + SSL Starter Kit
 
-A production-ready Docker + Nginx + Let's Encrypt starter kit / setup for deploying Dockerized web applications with automatic SSL certificate management using Nginx Proxy and Let's Encrypt.
+A Docker + Nginx + Let's Encrypt starter kit / setup for deploying Dockerized web applications to a server with automatic SSL certificate management using Nginx Proxy and Let's Encrypt.
 
 ## Overview
 
@@ -113,6 +113,8 @@ Next, somewhere on your server, clone your site's repo which contains the Docker
 git clone https://github.com/your-username/your-site.git
 cd your-site
 ```
+
+Make sure you have the `.env.production` file in your site's working directory and configure as necessary.
 
 Next, pull your site's docker image:
 
