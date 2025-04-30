@@ -1,3 +1,14 @@
+# This workflow tests that SSH connection via GitHub Actions is working for your server.
+# This process will be used in the deploy workflow so this is useful to test.
+
+# Necessary repository variables:
+# SSH_HOST: The IP/hostname of your server
+# SSH_PORT: The SSH port of your server
+# SSH_USER: The SSH user of your server
+
+# Necessary repository secrets:
+# SSH_PRIVATE_KEY: Your server's private key
+
 name: Test SSH
 
 on:
@@ -8,6 +19,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Configure SSH connection
       - name: Setup SSH
         run: |
           echo "Setting up SSH connection to port ${{ vars.SSH_PORT }}"
@@ -23,6 +35,7 @@ jobs:
 
           echo "SSH setup complete"
 
+      # Step 2: Test SSH connection
       - name: Test SSH connection
         run: |
-          ssh -p ${{ vars.SSH_PORT }} ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }} "echo 'GitHub Actions SSH is working for the ci-user.'"
+          ssh -p ${{ vars.SSH_PORT }} ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }} "echo 'GitHub Actions SSH is working for the SSH user.'"

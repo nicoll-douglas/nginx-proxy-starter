@@ -1,3 +1,19 @@
+# This workflow will automatically build and deploy your site's container to your server allowing for continuous development.
+# You will need to setup SSH keys for your server and your project repo if you wish to use it.
+# You should also include the .env.production file in your app's working directory on the server and configure as necessary.
+
+# Necessary repository variables:
+# SSH_HOST: The IP/hostname of your server
+# SSH_PORT: The SSH port of your server
+# SSH_USER: The SSH user of your server
+# APP_DIR: The working directory of your site on the server
+# DOCKERHUB_IMAGE: Your Docker Hub image (e.g your-username/your-site:latest)
+
+# Necessary repository secrets:
+# SSH_PRIVATE_KEY: Your server's private key
+# DOCKERHUB_USERNAME: Your Docker Hub username
+# DOCKERHUB_TOKEN: Your Docker Hub token
+
 name: Deploy
 
 on:
@@ -6,7 +22,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  # Stage 1: Build and push Docker image to private registry
+  # Stage 1: Build and push your site's Docker image to Docker Hub
   build-and-push:
     name: Build & Push Image
     runs-on: ubuntu-latest
@@ -29,15 +45,13 @@ jobs:
         with:
           context: . # Build context
           push: true # Push after build
-          tags: ${{ vars.DOCKERHUB_IMAGE_TAG }}
+          tags: ${{ vars.DOCKERHUB_IMAGE }}
 
-  # STAGE 2: Deploy to production server
+  # Stage 2: Deploy to production server
   deploy:
     name: Deploy to Production
     needs: [build-and-push] # Requires successful build first
     runs-on: ubuntu-latest
-    env:
-      APP_DIR: "/var/www/${{ vars.LOCATION }}"
 
     steps:
       # Step 1: Checkout repo
@@ -60,11 +74,11 @@ jobs:
 
           echo "SSH setup complete"
 
-      # Step 3: Copy the docker compose file and Makefile to the server
+      # Step 3: Copy the deployment Docker compose file and Makefile to the server
       - name: Upload Auxiliary Files to Server
         run: |
           echo "Uploading files to server on port ${{ vars.SSH_PORT }}"
-          scp -P ${{ vars.SSH_PORT }} -i ~/.ssh/id_ed25519 docker-compose.prod.yml Makefile ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }}:${{ env.APP_DIR }}
+          scp -P ${{ vars.SSH_PORT }} -i ~/.ssh/id_ed25519 docker-compose.deploy.yml Makefile ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }}:${{ env.APP_DIR }}
           echo "File upload complete"
 
       # Step 4: Execute deployment commands on server
@@ -73,39 +87,29 @@ jobs:
           echo "Starting deployment process on port ${{ vars.SSH_PORT }}"
           ssh -p ${{ vars.SSH_PORT }} ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }} << 'EOF'
             set -euo pipefail # Exit on error + if any command fails
-            cd "${{ env.APP_DIR }}"
+            cd "${{ vars.APP_DIR }}"
             
             echo "Current directory: $(pwd)"
             echo "Files in directory:"
             ls -la
             
-            # 2. Login to Docker Hub
+            # 1. Login to Docker Hub
             echo "Logging into Docker Hub"
             echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login \
               -u "${{ secrets.DOCKERHUB_USERNAME }}" \
               --password-stdin
             
-            # 3. Stop and remove old containers
-            echo "Stopping and removing old containers"
+            # 2. Stop and remove old container
+            echo "Stopping and removing old container"
             make deploy-down
             
-            # 4. Cleanup unused images
-            echo "Pruning Docker images and builder cache"
-            make deploy-prune
-            
-            # 5. Pull latest images
-            echo "Pulling latest images"
+            # 3. Pull latest image
+            echo "Pulling latest image"
             make deploy-pull
 
-            # 6. Start new containers
-            echo "Starting new containers"
+            # 4. Start new container
+            echo "Starting new container"
             make deploy-up
             
-            echo "Successfully deployed: ${{ vars.DOCKERHUB_IMAGE_TAG }}"
-            
-            # Extra logs
-            echo "Docker Compose status:"
-            docker compose ps
-            echo "Recent logs:"
-            docker compose logs --tail=50
+            echo "Successfully deployed: ${{ vars.DOCKERHUB_IMAGE }}"
           EOF
