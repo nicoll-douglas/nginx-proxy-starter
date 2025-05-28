@@ -1,4 +1,4 @@
-# Nginx + Docker + SSL Starter Kit
+# Nginx Proxy + Docker + SSL Starter Kit
 
 A Docker + Nginx + Let's Encrypt starter kit / setup for deploying Dockerized web applications to a server with automatic SSL certificate management using Nginx Proxy and Let's Encrypt.
 
